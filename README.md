@@ -1,9 +1,9 @@
 # Bi-LSTM-CRF Tutorial 
 
 ### data file 
-이 코드를 사용하기 위해서 수집한 HTML file을 json파일로 형식을 바꿔주었다. 
+이 코드를 사용하기 위해서 수집한 json file을 읽어서 특정 키워드만 추출한 뒤, csv file로 저장해주었다. 
 
-[HTML 파일]()
+[json 파일]()
 
 
 ```
