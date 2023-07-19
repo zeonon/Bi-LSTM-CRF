@@ -1,13 +1,17 @@
 # Bi-LSTM-CRF Tutorial 
 
-### data file 
-이 코드를 사용하기 위해서 수집한 json file을 읽어서 특정 키워드만 추출한 뒤, csv file로 저장해주었다. 
+### About the Dataset 
+
+이 코드에 사용되는 파일의 형식은 csv 형식이다.
+
+수집한 파일의 형식이 json이라서 file을 읽어서 특정 키워드만 추출한 뒤, csv file로 저장해주었다. 
 
 [json 파일]()
 
 
+
+
 ```
-# Written by jiyeon
 
 import os
 import json
@@ -94,9 +98,11 @@ f_train.close()
 
 
 
-### Bi-LSTM
-Bi-LSTM+CRF를 하기에 앞서 우선 Bi-LSTM부터 알아보자 
 
+
+### Bi-LSTM+CRF
+Bi-LSTM와 Bi-LSTM+CRF은 CRF층의 차이입니다. 
+기존의 Bi-LSTM모델에 CRF층을 추가하여 개체명 인식 모델을 개선한 것 입니다.
 
 
 ```
@@ -117,7 +123,18 @@ print('데이터에 Null 값이 있는지 유무 : ' + str(data.isnull().values.
 print('어떤 열에 Null값이 있는지 출력')
 print('==============================')
 data.isnull().sum()
+```
 
+전체 데이터에서 중복을 허용하지 않고 유일한 값의 개수를 셀 수 있게 해주는 nunique()를 사용합니다.
+
+
+이 데이터에는 몇 개의 문장이 있으며 문장들은 몇 개의 단어를 가지고 몇 개 종류의 개체명 태깅을 가지는지 알 수 있습니다. 
+
+
+개체명 태깅이 전체 데이터에서 몇 개가 있는지, 개체명 태깅 개수의 분포를 확인할 수 있습니다.
+
+
+```
 print('sentence # 열의 중복을 제거한 값의 개수 : {}'.format(data['Sentence #'].nunique()))
 print('Word 열의 중복을 제거한 값의 개수 : {}'.format(data.Word.nunique()))
 print('Tag 열의 중복을 제거한 값의 개수 : {}'.format(data.Tag.nunique()))
@@ -125,7 +142,12 @@ print('Tag 열의 중복을 제거한 값의 개수 : {}'.format(data.Tag.nuniqu
 print('Tag 열의 각각의 값의 개수 카운트')
 print('================================')
 print(data.groupby('Tag').size().reset_index(name='count'))
+```
 
+
+#### 데이터 원하는 형태로 가공하기 
+
+```
 data = data.fillna(method="ffill")
 print(data.tail())
 
@@ -189,7 +211,22 @@ y_test = to_categorical(y_test_int, num_classes=tag_size)
 ```
 
 
+
+
+
+### CRF 층 설치 
+CRF 층을 사용하기 위해 keras-crf를 설치합니다.
+```
+pip install keras-crf
+```
+
+
+
 ### CRF
+CRF는 Conditional Random Field의 약자로 양방향 LSTM을 위해 탄생한 모델이 아니라 이전에 독자적으로 존재해왔던 모델입니다. 이를 양방향 LSTM 모델 위에 하나의 층으로 추가하여, 양방향 LSTM + CRF 모델이 탄생하였습니다. 
+
+
+기존에 CRF 층이 존재하지 않았던 양방향 LSTM 모델은 활성화 함수를 지난 시점에서 개체명을 결정했지만, CRF 층을 추가한 모델에서는 활성화 함수의 결과들이 CRF 층의 입력으로 전달됩니다. 
 ```
 import tensorflow as tf
 from tensorflow.keras import Model
